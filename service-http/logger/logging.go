@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sing3demons/go-product-service/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -42,8 +43,7 @@ func LoggingMiddleware() gin.HandlerFunc {
 		path := ctx.Request.RequestURI
 		// status code
 		statusCode := ctx.Writer.Status()
-		// Request IP
-		clientIP := ctx.ClientIP()
+
 		// Request host
 		host := ctx.Request.Host
 		// Request user agent
@@ -54,22 +54,17 @@ func LoggingMiddleware() gin.HandlerFunc {
 			userID = ""
 		}
 
-		reqId := ctx.Writer.Header().Get("X-Request-Id")
-		if reqId == "" {
-			reqId = "-"
-		}
 		body_size := ctx.Writer.Size()
 		// execution time
 		latencyTime := endTime.Sub(startTime)
+
+		headers := utils.GetHeaders(ctx)
+
 		logrus.WithFields(logrus.Fields{
+			"headers":       headers,
 			"method":        reqMethod,
 			"status":        statusCode,
 			"latency":       latencyTime,
-			"client_ip":     clientIP,
-			"request_id":    reqId,
-			"remote_ip":     ctx.Request.RemoteAddr,
-			"user_id":       userID,
-			"user_agent":    ctx.Request.UserAgent(),
 			"error":         ctx.Errors.ByType(gin.ErrorTypePrivate).String(),
 			"request":       ctx.Request.PostForm.Encode(),
 			"body_size":     body_size,
@@ -83,7 +78,7 @@ func LoggingMiddleware() gin.HandlerFunc {
 			"timezone":      time.Now().Location().String(),
 			"ISOTime":       startTime,
 			"UnixTime":      startTime.UnixNano(),
-		}).Debug("HTTP::REQUEST")
+		}).Info("HTTP::REQUEST")
 		ctx.Next()
 	}
 }

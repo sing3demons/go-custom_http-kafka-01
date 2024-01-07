@@ -1,0 +1,14 @@
+{
+  "folders": [
+	{
+		"path": "./service_category_consumer"
+	},
+	{
+		"path": "./service_product_consumer"
+	},
+	{
+		"path": "./service-http"
+	}
+],
+  "settings": {}
+}
